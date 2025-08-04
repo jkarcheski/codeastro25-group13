@@ -9,10 +9,11 @@ y = np.random.rand(num_points)
 
 # Create the plotting environment 
 fig, ax = plt.subplots(1,2, figsize = (10, 4))
-scatter = ax[0].scatter(x,y)
-
-cursor_hover = mplcursors.cursor(scatter, hover=True)
+scatter = ax[0].scatter(x,y, color='k')
+ax[0].set_title("Main Interactive Plot")
+ax[1].set_title("Spectrum")
 cursor_click = mplcursors.cursor(scatter, hover=False)  # or just mplcursors.cursor()
+cursor_hover = mplcursors.cursor(scatter, hover=2)
 
 ############ Cursor customization ######################################################################
 # (from https://mplcursors.readthedocs.io/en/stable/)
@@ -27,15 +28,22 @@ cursor_click = mplcursors.cursor(scatter, hover=False)  # or just mplcursors.cur
 
 def on_hover(sel):
     # TODO: replace 'sel.index' with AGN name
-    # ax[1].scatter(x,y)
-    return sel.annotation.set_text(sel.index)
+    sel.annotation.set_text(sel.index)
 
 def on_click(sel):
-    return ax[1].scatter(x,y)
+    # generates a new plot in the other panel
+    ax[1].clear()
+    ax[1].set_title("Spectrum")
+
+    sel.annotation.set_text("")
+    ax[0].scatter(x = sel.target[0], y = sel.target[1], color='r')
+    ax[1].scatter(x,y)
+
+def on_remove(sel):
+    ax[0].scatter(x = sel.target[0], y = sel.target[1], color='k')
 
 cursor_hover.connect("add", on_hover)
 cursor_click.connect("add", on_click)
-
-#cursor.connect("click", on_click)
+cursor_click.connect("remove", on_remove)
 
 plt.show()
