@@ -34,11 +34,14 @@ if results is not None:
             plate = int(results['plate'][i])
             mjd = int(results['mjd'][i])
             fiberid = int(results['fiberid'][i])
-            spec = SDSS.get_spectra(plate=plate, mjd=mjd, fiberID=fiberid)
+            objid = int(results['objid'][i])
+            redshift = float(results['z'][i])
+            spec = SDSS.get_spectra(plate=plate, mjd=mjd, fiberID=fiberid, data_release=17)
 
             if spec:
                 # filename = f"spectra/spec_{plate}_{mjd}_{fiberid}.fits"
-                filename = os.path.join(spectra_dir, f"spec_{plate}_{mjd}_{fiberid}.fits")
+                filename = os.path.join(spectra_dir, f"spec_{plate}_{mjd}_{fiberid}.fits") #save name as this
+                # filename = os.path.join(spectra_dir, f"spec_{objid}_{redshift}.fits") #this saves name with objid and redshift
                 spec[0].writeto(filename, overwrite=True)
                 print(f"Saved: {filename}")
             else:
