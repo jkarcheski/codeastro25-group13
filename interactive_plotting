@@ -1,3 +1,26 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import mplcursors
+
+num_points = 10
+x_set = np.random.rand(num_points)
+y_set = np.random.rand(num_points)
+indices = np.linspace(0, num_points, num_points + 1)
+
+select_index = 0
+
+
+def on_add(sel):
+    return sel.annotation.set_text(indices[sel.index])
+
+
+scatter = plt.scatter(x_set, y_set)
+cursor = mplcursors.cursor(scatter)
+cursor.connect(
+    "add", on_add
+)  # , lambda sel: sel.annotation.set_text(indices[sel.index]))
+
+print()
+
+# selected_index = sel.annotation.
+plt.show()
