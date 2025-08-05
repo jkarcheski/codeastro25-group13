@@ -7,6 +7,11 @@ from astropy.io import fits, ascii  # type: ignore
 import os
 import mplcursors
 
+# waiting to add things fully:
+
+# import get_sdss_data as getdata
+# x = getdata.get_spectra(num=10)
+
 """
 DEFINING STAGE 
 """
@@ -20,9 +25,6 @@ DEFINING STAGE
 ### ### AGN class init:
 ### ### ### read in fits file & define self.
 
-# function: interactive plotting(AGN_object_list, paramx, paramy)
-
-#
 
 """
 RUNNING STAGE
