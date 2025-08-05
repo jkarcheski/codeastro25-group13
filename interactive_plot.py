@@ -2,8 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import mplcursors
 
-print("Plotting function document")
-
 
 def interactive_plots(agn_obj_list, paramx, paramy):
     x = [getattr(agn_obj_list[i], paramx) for i in range(len(agn_obj_list))]
@@ -28,12 +26,11 @@ def interactive_plots(agn_obj_list, paramx, paramy):
     def on_click(sel):
         # generates a new plot in the other panel
         ax[1].clear()
-        ax[1].set_title("Spectrum")
 
         sel.annotation.set_text("")
         ax[0].scatter(x=sel.target[0], y=sel.target[1], color="r")
         # plot the spectrum:
-        ax[1].plot(agn_obj_list[sel.index].lam, agn_obj_list[sel.index].flux)
+        plot_spectrum(agn_obj_list, sel.index, ax[1])
 
     def on_remove(sel):
         ax[0].scatter(x=sel.target[0], y=sel.target[1], color="k")
@@ -45,28 +42,16 @@ def interactive_plots(agn_obj_list, paramx, paramy):
     plt.show()
 
 
+def plot_spectrum(agn_obj_list, index, ax):
+    ax.plot(
+        agn_obj_list[index].wavelength, agn_obj_list[index].flux, color="black", lw=0.7
+    )
+    ax.set(
+        xlabel="Wavelength [Å]",
+        ylabel="Flux [1e-17 erg/s/cm$^2$/Å]",
+        title="Spectrum of " + agn_obj_list[index].id,
+    )
+
+
 if __name__ == "__main__":
     print("you shouldn't be calling this is as main")
-
-
-"""
-
-TESTING MAIN
-
-myagn1 = agn(
-    ra_in=1,
-    dec_in=2.0,
-    id_in=4,
-    lam_in=np.linspace(0, 1, 100),
-    flux_in=np.random.rand(100),
-)
-myagn2 = agn(
-    ra_in=3.0,
-    dec_in=4.0,
-    id_in=7,
-    lam_in=np.linspace(0, 1, 100),
-    flux_in=np.random.rand(100),
-)
-
-interactive_plots([myagn1, myagn2], "ra", "dec")
-"""
