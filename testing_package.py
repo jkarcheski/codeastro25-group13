@@ -3,7 +3,7 @@ import interactive_plot as ip
 
 
 astroob_inst = astro_ob("AGN") #instance of astronomical object, its an AGN!
-output = astroob_inst.get_spectra(2)
+output = astroob_inst.get_spectra(10)
 instance_list = []
 for entry in output:
   instance = AGN("AGN",entry)
