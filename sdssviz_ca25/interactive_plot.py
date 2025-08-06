@@ -3,6 +3,20 @@ import numpy as np
 import mplcursors
 
 def interactive_plots(agn_obj_list, paramx, paramy):
+    """Interactive scatterplot
+
+    Creates a two-panel plot with scatter plot on the left side with cursors through
+    which the user can interact with the points. Clicking on a point highlights it and 
+    populates the plot on the right.
+
+    Args:
+        agn_obj_list (list): list of AGN objects 
+        paramx (string): parameter to be plotted on the x axis. select from: ra, dec, z, id
+        paramy (string): parameter to be plotted on the y axis. select from: ra, dec, z, id
+
+    Returns:
+        None
+    """
     x = [getattr(agn_obj_list[i], paramx) for i in range(len(agn_obj_list))]
     y = [getattr(agn_obj_list[i], paramy) for i in range(len(agn_obj_list))]
     ids = [getattr(agn_obj_list[i], "id") for i in range(len(agn_obj_list))]
@@ -42,6 +56,18 @@ def interactive_plots(agn_obj_list, paramx, paramy):
 
 
 def plot_spectrum(agn_obj_list, index, ax):
+    """Plots a spectrum
+
+    Args:
+        agn_obj_list (list): list of AGN objects 
+        index (int): index of AGN object 
+        ax (matplotlib.axes._axes.Axes): plot axis on which we will plot the spectrum 
+
+    Returns:
+        None
+
+
+    """
     ax.plot(
         agn_obj_list[index].wavelength, agn_obj_list[index].flux, color="black", lw=0.7
     )
