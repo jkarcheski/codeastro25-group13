@@ -13,5 +13,6 @@ Find the documentation for each function in this package below.
    :maxdepth: 2
    :caption: Contents:
 
-   sdssviz_ca25
+   package_skeleton
+   interactive_plot
 
