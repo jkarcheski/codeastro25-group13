@@ -1,4 +1,3 @@
-Hello group 13!
+A Python package that opens up SDSS data and enables a user to plot properties of a dataset and each object's spectra.
 
-
-updating remote in developer branch!
+Completed as a project in CodeAstro 2025.
