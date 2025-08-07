@@ -8,31 +8,25 @@ from astroquery.sdss import SDSS
 
 
 class astro_ob(object):
-    '''
-    Parent class containing all possible categories of astronomical object.
-    For now, only contains AGN.
-    To-do: Maybe make more flexible by turning input data automatically into an Astropy table?
-    '''
+    """
+     Contains all possible catgeories of astronomical object within dataset. For now, contains only AGN.
+    """
     def __init__(self, name):
          self.category = name
 
 
     
     def get_spectra(self, num):
-        """
-        The first function get_spectra, initiates an sql query 
+         """The first function get_spectra, initiates an sql query 
         according to the given number of objects and returns a list of
-        the given parameters for each object
-        
-        input: 
-        num (int): numer of AGN you want to query 
-        
-        returns: 
-        spectra_list (list): A list of lists of parameters (might want to edit later)
+        the given parameters for each object.
+
+        Args:
+            num (int): numer of AGN you want to query 
+
+        Returns: 
+            spectra_list (list): A list of lists of parameters (might want to edit later)
         """
-
-
-
         query = f"""
                 SELECT TOP {num}
                     p.objid, p.ra, p.dec,
@@ -87,17 +81,16 @@ class astro_ob(object):
 
 
 class AGN(astro_ob):
-    """
-    Information that is shown when the astronomical object is an AGN.
+    """For an AGN in spectra_list, extract its properties.
     """
 
     def __init__(self, name, entry):
-        """ 
-        Function that is run to initialize the class. Pulls RA, Dec, and redshift from table.
+        """Function that is run to initialize the class. Pulls information from table.
 
-        input: entry dictionary containing parameters for one AGN 
-
-        """
+        Args:
+            name (str): Type of astronomical object (inherited from astro_ob class).
+            entry (dict): Contains properties of an AGN within dataset.
+       """
         super().__init__(name) # initializing parent class
         
         # load in the spectra
@@ -118,16 +111,16 @@ class AGN(astro_ob):
         self.z = entry['z'] # Redshift
         
     def __repr__(self):
-        '''
-        Reprocesses information for an AGN.
-        '''
+        """Reprocesses information for an AGN.
+
+        Returns: RA [deg]. Dec [deg], and redshift.
+        """
         return f"AGN: {self.id} RA = {round(self.ra,5)}, DEC= {round(self.dec,5)}, Z = {round(self.z,5)}"
 
     def __str__(self):
-        '''
-       Output message when AGN object is printed.
-       To-do: maybe also print category of object?
-        '''
+        """Output message when AGN object is printed.
+       Returns: RA [deg]. Dec [deg], and redshift.
+        """
         return f"Information for AGN: {self.id}\n RA = {round(self.ra,5)}\n DEC= {round(self.dec,5)}\n Z = {round(self.z,5)}"
 
 
