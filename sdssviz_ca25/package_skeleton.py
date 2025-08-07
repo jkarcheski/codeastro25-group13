@@ -43,7 +43,14 @@ class astro_ob(object):
                 JOIN SpecObjAll s ON p.objid = s.bestobjid
                 WHERE
                     s.sciencePrimary = 1 AND
-                    s.class = 'GALAXY' AND s.subclass LIKE '%AGN%'
+                    s.class = 'GALAXY' AND
+                    s.subclass LIKE '%AGN%' AND
+                    p.ra IS NOT NULL AND
+                    p.dec IS NOT NULL AND
+                    s.z IS NOT NULL AND
+                    s.plate IS NOT NULL AND
+                    s.mjd IS NOT NULL AND
+                    s.fiberid IS NOT NULL
                 """
         results = SDSS.query_sql(query)
         print(results)
