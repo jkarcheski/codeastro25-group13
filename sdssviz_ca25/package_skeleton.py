@@ -1,9 +1,12 @@
 from astroquery.sdss import SDSS
+SDSS.clear_cache()
 # from astropy import coordinates as coords
 # from astropy.table import Table
 # import numpy as np
 # import os
 # import matplotlib.pyplot as plt
+from concurrent.futures import ThreadPoolExecutor
+from tqdm import tqdm
 
 
 
@@ -15,11 +18,13 @@ class astro_ob(object):
          self.category = name
 
 
-    
+        
     def get_spectra(self, num):
         """The first function get_spectra, initiates an sql query 
         according to the given number of objects and returns a list of
-        the given parameters for each object.
+        the given parameters for each object. This function uses concurrent 
+        parallelism to optiize the getting spectrum and running it concurrently.
+        Documentation: https://docs.python.org/3/library/concurrent.futures.html 
 
         Args:
             num (int): numer of AGN you want to query 
@@ -27,21 +32,23 @@ class astro_ob(object):
         Returns: 
             spectra_list (list): A list of lists of parameters (might want to edit later)
         """
+
         query = f"""
-                SELECT TOP {num}
+                SELECT DISTINCT TOP {num}
                     p.objid, p.ra, p.dec,
                     s.specobjid, s.z, s.class, s.subclass,
                     s.plate, s.mjd, s.fiberid
-                FROM
-                    PhotoObjAll p JOIN SpecObjAll s ON p.objid = s.bestobjid
+                FROM PhotoObjAll p 
+                JOIN SpecObjAll s ON p.objid = s.bestobjid
                 WHERE
                     s.class = 'GALAXY' AND s.subclass LIKE '%AGN%'
                 """
         results = SDSS.query_sql(query)
         spectra_list = [] #initialize a variable to store the list
 
-        if results is not None:
-            for i in range(len(results)):
+        for i in tqdm(range(num), desc="Processing Items"):
+
+            def fetch_spec(i):
                 try:
                     plate = int(results['plate'][i])
                     mjd = int(results['mjd'][i])
@@ -50,28 +57,22 @@ class astro_ob(object):
                     redshift = float(results['z'][i])
                     ra = float(results['ra'][i])
                     dec = float(results['dec'][i])
-
                     spec = SDSS.get_spectra(plate=plate, mjd=mjd, fiberID=fiberid, data_release=17)
-                    
-                    # if spec:
-                    #     spectra_list.append(spec[0])  # append only the first HDUList if multiple are returned
                     if spec:
-                        spectra_list.append({ 
-                            'spectrum': spec[0],  # HDUList
-                            'plate': plate,
-                            'mjd': mjd,
-                            'fiberid': fiberid,
-                            'objid': objid,
-                            'ra': ra,
-                            'dec': dec,
-                            'z': redshift,
-                            'class': results['class'][i],
+                        return {
+                            'spectrum': spec[0],
+                            'plate': plate, 'mjd': mjd, 'fiberid': fiberid,
+                            'objid': objid, 'ra': ra, 'dec': dec,
+                            'z': redshift, 'class': results['class'][i],
                             'subclass': results['subclass'][i]
-                        })
-                    else:
-                        print(f"No spectrum for plate={plate}, mjd={mjd}, fiber={fiberid}")
+                        }
                 except Exception as e:
-                    print(f"Error for plate={plate}, mjd={mjd}, fiber={fiberid}: {e}")
+                    print(f"Error fetching spectrum at index {i}: {e}")
+                return None
+
+        if results is not None:
+            with ThreadPoolExecutor(max_workers=5) as executor:
+                spectra_list = list(filter(None, executor.map(fetch_spec, range(len(results)))))
         else:
             print("No results found.")
 
