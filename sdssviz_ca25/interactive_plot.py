@@ -22,30 +22,44 @@ def interactive_plots(agn_obj_list, paramx, paramy):
     # y = [getattr(agn_obj_list[i], paramy) for i in range(len(agn_obj_list))]
     # ids = [getattr(agn_obj_list[i], "id") for i in range(len(agn_obj_list))]
 
+    if (type(paramx) != str) or (type(paramy) != str):
+        raise TypeError("paramx/y must be a string.")
+
+    if paramx != ("ra" or "dec" or "z" or "id"):
+        print(paramx)
+        raise ValueError("Unsupported paramx. We currently support: ra, dec, z, id")
+    if (paramy == "ra") or (paramy == "dec") or (paramy == "z") or (paramy == "id"):
+        print("good paramy")
+    else:
+        print(paramy)
+        raise ValueError("Unsupported paramy. We currently support: ra, dec, z, id")
+
     """optimizing this chunk so we dont call the x,y,ids individually"""
 
-    x, y, ids, redshift= zip(*[(getattr(agn, paramx), getattr(agn, paramy), agn.id, agn.z) for agn in agn_obj_list])
-
+    x, y, ids, redshift = zip(
+        *[
+            (getattr(agn, paramx), getattr(agn, paramy), agn.id, agn.z)
+            for agn in agn_obj_list
+        ]
+    )
 
     fig, ax = plt.subplots(1, 2, figsize=(10, 4))
     scatter = ax[0].scatter(x, y, color="k")
     ax[0].set_title("Main Interactive Plot")
     ax[0].set(xlabel=str(paramx), ylabel=str(paramy))
     ax[1].set_title("Spectrum")
- 
 
     # Instead of calling plot_spectrum() every time:
-    line, = ax[1].plot([], [], color="black", lw=0.7)
+    (line,) = ax[1].plot([], [], color="black", lw=0.7)
 
-    redshift_label = ax[1].text(0.98, 0.98, '', transform=ax[1].transAxes, 
-                                 ha='right', va='top', fontsize=10) 
+    redshift_label = ax[1].text(
+        0.98, 0.98, "", transform=ax[1].transAxes, ha="right", va="top", fontsize=10
+    )
 
     cursor_click = mplcursors.cursor(
         scatter, hover=False
     )  # or just mplcursors.cursor()
     cursor_hover = mplcursors.cursor(scatter, hover=2)
-
-    
 
     def on_hover(sel):
         # TODO: replace 'sel.index' with AGN name
@@ -69,9 +83,10 @@ def interactive_plots(agn_obj_list, paramx, paramy):
     This method is generally more efficient 
     for dynamic updates as it avoids recreating plot elements.]- source (Google AI)
     """
+
     def on_click(sel):
         sel.annotation.set_text("")
-    
+
         ax[0].scatter(x=sel.target[0], y=sel.target[1], color="r")
 
         agn = agn_obj_list[sel.index]
@@ -80,7 +95,9 @@ def interactive_plots(agn_obj_list, paramx, paramy):
         ax[1].autoscale_view()
         ax[1].set_title(f"Spectrum of {agn.id}")
         ax[1].legend()
-        redshift_label.set_text(f'Redshift: {agn.z:.4f}')  # Format redshift to two decimal places
+        redshift_label.set_text(
+            f"Redshift: {agn.z:.4f}"
+        )  # Format redshift to two decimal places
         ax[1].legend()
         fig.canvas.draw_idle()
 
