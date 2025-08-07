@@ -8,6 +8,8 @@ SDSS.clear_cache()
 # import matplotlib.pyplot as plt
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
+from tqdm.contrib.concurrent import thread_map
+
 
 
 class astro_ob(object):
@@ -40,50 +42,43 @@ class astro_ob(object):
                 FROM PhotoObjAll p 
                 JOIN SpecObjAll s ON p.objid = s.bestobjid
                 WHERE
+                    s.sciencePrimary = 1 AND
                     s.class = 'GALAXY' AND s.subclass LIKE '%AGN%'
                 """
         results = SDSS.query_sql(query)
-        spectra_list = []  # initialize a variable to store the list
+        print(results)
+        spectra_list = [] #initialize a variable to store the list
 
-        for i in tqdm(range(num), desc="Processing Items"):
-
-            def fetch_spec(i):
-                try:
-                    plate = int(results["plate"][i])
-                    mjd = int(results["mjd"][i])
-                    fiberid = int(results["fiberid"][i])
-                    objid = int(results["objid"][i])
-                    redshift = float(results["z"][i])
-                    ra = float(results["ra"][i])
-                    dec = float(results["dec"][i])
-                    spec = SDSS.get_spectra(
-                        plate=plate, mjd=mjd, fiberID=fiberid, data_release=17
-                    )
-                    print("tried")
-                    if spec:
-                        return {
-                            "spectrum": spec[0],
-                            "plate": plate,
-                            "mjd": mjd,
-                            "fiberid": fiberid,
-                            "objid": objid,
-                            "ra": ra,
-                            "dec": dec,
-                            "z": redshift,
-                            "class": results["class"][i],
-                            "subclass": results["subclass"][i],
-                        }
-                    print("done")
-                except Exception as e:
-                    print(f"Error fetching spectrum at index {i}: {e}")
-                return None
+        def fetch_spec(i):
+            try:
+                plate = int(results['plate'][i])
+                mjd = int(results['mjd'][i])
+                fiberid = int(results['fiberid'][i])
+                objid = int(results['objid'][i])
+                redshift = float(results['z'][i])
+                ra = float(results['ra'][i])
+                dec = float(results['dec'][i])
+                spec = SDSS.get_spectra(plate=plate, mjd=mjd, fiberID=fiberid, data_release=17)
+                if spec:
+                    return {
+                        'spectrum': spec[0],
+                        'plate': plate, 'mjd': mjd, 'fiberid': fiberid,
+                        'objid': objid, 'ra': ra, 'dec': dec,
+                        'z': redshift, 'class': results['class'][i],
+                        'subclass': results['subclass'][i]
+                    }
+            except Exception as e:
+                print(f"Error fetching spectrum at index {i}: {e}")
+            return None
 
         if results is not None:
-            print("starting listing")
-            with ThreadPoolExecutor(max_workers=5) as executor:
-                spectra_list = list(
-                    filter(None, executor.map(fetch_spec, range(len(results))))
-                )
+            with ThreadPoolExecutor(max_workers=5) as executor:  # Example: max_workers = 5
+                futures = executor.map(fetch_spec, range(len(results)))
+                spectra_list = list(tqdm(futures, total=len(results), desc="Processing Spectra"))
+
+            # with ThreadPoolExecutor(max_workers=5) as executor:
+            #     spectra_list = list(filter(None, executor.map(fetch_spec, range(len(results)))))
+
         else:
             print("No results found.")
 
