@@ -17,7 +17,7 @@ class astro_ob(object):
 
     
     def get_spectra(self, num):
-         """The first function get_spectra, initiates an sql query 
+        """The first function get_spectra, initiates an sql query 
         according to the given number of objects and returns a list of
         the given parameters for each object.
 
