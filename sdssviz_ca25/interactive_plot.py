@@ -94,11 +94,12 @@ def interactive_plots(agn_obj_list, paramx, paramy):
         ax[1].relim()
         ax[1].autoscale_view()
         ax[1].set_title(f"Spectrum of {agn.id}")
-        ax[1].legend()
+        ax[1].set(xlabel="Wavelength [Å]", ylabel="Flux [1e-17 erg/s/cm$^2$/Å]")
+        # ax[1].legend()
         redshift_label.set_text(
             f"Redshift: {agn.z:.4f}"
         )  # Format redshift to two decimal places
-        ax[1].legend()
+        # ax[1].legend()
         fig.canvas.draw_idle()
 
     def on_remove(sel):
@@ -129,11 +130,12 @@ def plot_spectrum(agn_obj_list, index, ax):
         agn_obj_list[index].wavelength, agn_obj_list[index].flux, color="black", lw=0.7
     )
     ax.set(
-        xlabel="Wavelength [Å]",
+        xlabel="Wavelength [\AA]",
         ylabel="Flux [1e-17 erg/s/cm$^2$/Å]",
         title="Spectrum of " + str(agn_obj_list[index].id),
     )
 
 
+# Å
 if __name__ == "__main__":
     print("you shouldn't be calling this is as main")
